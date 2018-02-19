@@ -73,62 +73,27 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         currentPos = currentGameState.getPacmanPosition()
-        # print "current state: ", currentGameState
-        # print "successor state: ", successorGameState
-        # print "newPos: ", newPos
-        # print "newFood: ", newFood
-        # print "newGhostStates: ", newGhostStates
-        # print "newScaredTimes: ", newScaredTimes
-        # print "actualPos: ", actualPos
 
         "*** YOUR CODE HERE ***"
-        #currentGhostStates = currentGameState.getGhostStates()
         foodList = newFood.asList() 
         foodDist = []
+        ghostDist =[]
 
         if not foodList:
+          # si no queda menjar retornem maxim
           return 9999
         else:
+          # calculem distancies a tot el menjar
           for food in foodList:
             foodDist.append(util.manhattanDistance( newPos, food ))
 
-        newDist =[]
-        curDist = []
-
         for ghost in newGhostStates:
+          # calculem distancies als fantasmes
           ghostPos = ghost.getPosition()
-          newDist.append(util.manhattanDistance(newPos, ghostPos ))
+          ghostDist.append(util.manhattanDistance(newPos, ghostPos ))
         
-          
-        # for aghost in currentGhostStates:
-        #   aghostPos = aghost.getPosition()
-        #   print "aghostPos: ", aghostPos
-        #   curDist.append(util.manhattanDistance(currentPos, aghostPos ))
-
-        # for i in range(len(newDist)):
-        #   if newDist[i]>curDist[i] and newScaredTimes[i]==0 and newDist[i]>4:
-        #     score+=1
-        #     #print "if"
-        #   elif newDist[i]<curDist[i] and newScaredTimes[i]==0:
-        #     score-=1
-        #     #print "elif 1"
-        #   elif newDist[i]>curDist[i] and newScaredTimes[i]>0 :
-        #     score-=1
-        #     #print "elif 2"
-        #   elif newDist[i]<curDist[i] and newScaredTimes[i]>0 and newDist[i]>4:
-        #     score+=1
-        #     #print "elif 3"
-        #   elif  newDist[i]>4:
-        #     score+=1
-        #     #print "elif 4"
-        #   else:
-        #     #print "else"
-        #     score-=1
-        #return ghostScore
-
-        return successorGameState.getScore() + min(newDist) - min(foodDist)
-        #return score
-        #return successorGameState.getScore() + aux
+        # retornem score + fantasma mes proper - menjar mes proper
+        return successorGameState.getScore() + min(ghostDist) - min(foodDist)
 
 
 def scoreEvaluationFunction(currentGameState):
