@@ -159,7 +159,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
           successor = gameState.generateSuccessor(self.index, action)
           print "Index ", self.index, action
-          val = max(bestVal, self.getMin( successor, self.index+1, self.depth-1, ghosts))
+          val = max(bestVal, self.getMin( successor, self.index, self.depth, ghosts))
           if val> bestVal:
             bestVal, bestAct = val, action
         return bestAct
@@ -167,7 +167,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def getMax(self, successor, index,  depth, ghosts):
       """actions = gameState.getLegalActions(0)"""
+      index, depth = index +1, depth -1
       print "MAX", index, depth, ghosts
+      
       try :
         actions = successor.getLegalActions(index)
       except:
@@ -180,12 +182,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """if action is not "Stop":"""
         print action
         successor = successor.generateSuccessor(index, action) 
-        val = max(bestVal,self.getMin(successor, index+1, depth-1, ghosts))
+        val = max(bestVal,self.getMin(successor, index, depth, ghosts))
         if val> bestVal:
           bestVal= val
       return bestVal
 
     def getMin(self, successor, index,  depth, ghosts):
+      index, depth = index +1, depth -1
       print "MIN" ,index, depth, ghosts
       actions=[]
       try :
@@ -201,9 +204,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         print action
         successor = successor.generateSuccessor(index, action)
         if index==ghosts:
-          val = min(bestVal,self.getMax( successor, 0, depth-1, ghosts))
+          val = min(bestVal,self.getMax( successor, 0, depth, ghosts))
         else:
-          val = min(bestVal,self.getMin( successor, index+1, depth-1, ghosts))
+          val = min(bestVal,self.getMin( successor, index, depth, ghosts))
         if val< bestVal:
           bestVal= val
       return bestVal  
