@@ -153,9 +153,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         bestVal = float("-inf")
         bestAct = None
         #primer agent es el pacman. Pacman maximitza. (getMax) Pacman = MAX
-        #els següents són els fantasmes. Fantasmes minimitzen. (getMin) Cada fantasma = un nivell MIN
-        #per agafem el valor més gran dels nodes successors: la millor acció serà la que vaig al node amb el valor més alt
-        #per cada node successor obtenim els valors minims 
+        #els seguents son els fantasmes. Fantasmes minimitzen. (getMin) Cada fantasma = un nivell MIN
+        #per agafem el valor mes gran dels nodes successors: la millor accio sera la que vaig al node amb el valor mes alt
+        #per cada node successor obtenim els valors minims
         for action in gameState.getLegalActions(self.index):
           successor = gameState.generateSuccessor(self.index, action)
           val = max(bestVal, self.getMin( successor, self.index+1, self.depth, ghosts))
@@ -167,7 +167,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def getMax(self, successor, index,  depth, ghosts):
 
       actions = successor.getLegalActions(index)
-      #si no té accions = node terminal. si depth=0 no s'ha d'expandir més. Retornem valor del node
+      #si no te accions = node terminal. si depth=0 no s'ha d'expandir mes. Retornem valor del node
       if actions==[] or depth== 0 :
         return self.evaluationFunction(successor)
       bestVal = float("-inf")  
@@ -189,7 +189,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
           val = min(bestVal,self.getMax( succ, 0, depth-1, ghosts))
         else:
           val = min(bestVal,self.getMin( succ, index+1, depth, ghosts))
-        if val< bestVal:
+        if val < bestVal:
           bestVal= val
       return bestVal  
 
@@ -205,52 +205,62 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         ghosts = gameState.getNumAgents()-1
         bestVal = float("-inf")
-        bestAlp = float("-inf")
-        bestBeta = float("inf")
         bestAct = None
-        #primer agent es el pacman. Pacman maximitza. (getMax) Pacman = MAX
-        #els següents són els fantasmes. Fantasmes minimitzen. (getMin) Cada fantasma = un nivell MIN
-        #per agafem el valor més gran dels nodes successors: la millor acció serà la que vaig al node amb el valor més alt
-        #per cada node successor obtenim els valors minims 
+        alpha = float("-inf")
+        beta = float("inf")
+         
         for action in gameState.getLegalActions(self.index):
           successor = gameState.generateSuccessor(self.index, action)
-          val, alpa = max(bestVal, self.getMin( successor, self.index+1, self.depth, ghosts bestAlp, bestBeta))
-          if alpha> bestAlp:
-            bestAlp, bestAct = alpha, ac
-
+          val = max(bestVal, self.getMin( successor, self.index+1, self.depth, ghosts, alpha, beta))
+          if val > bestVal:
+            bestVal = val
+          #pacman es max --> actualitzem alpha
+          if bestVal > alpha:
+            alpha, bestAct = bestVal, action
         return bestAct
         util.raiseNotDefined()
 
-    def getMax(self, successor, index,  depth, ghosts):
+    def getMax(self, successor, index,  depth, ghosts, bestAlp, bestBeta):
 
       actions = successor.getLegalActions(index)
-      #si no té accions = node terminal. si depth=0 no s'ha d'expandir més. Retornem valor del node
+      
       if actions==[] or depth== 0 :
         return self.evaluationFunction(successor)
       bestVal = float("-inf")  
-      bestAlp = float("-inf") 
-      bestBeta = float("inf")
+
       for action in actions:
         succ = successor.generateSuccessor(index, action) 
-        alpha = max(bestAlp,self.getMin(succ, index+1, depth, ghosts))
-        if val> bestVal:
-          bestVal= val
+        val = max(bestVal,self.getMin(succ, index+1, depth, ghosts, bestAlp, bestBeta))
+        if val > bestVal:
+          bestVal = val
+        #per max actualitzem el valor d'alpha
+        if bestVal > bestAlp:
+          bestAlp = bestVal
+        #si el valor es superior a beta no cal seguir buscant
+        if bestVal > bestBeta:
+          break
       return bestVal
 
     def getMin(self, successor, index,  depth, ghosts, bestAlp, bestBeta):
+
       actions = successor.getLegalActions(index)
       if actions==[] or depth== 0 :
         return self.evaluationFunction(successor)
       bestVal = float("inf")
-      bestAlp = float("-inf")  
       for action in actions:
         succ = successor.generateSuccessor(index, action)
         if index==ghosts:
           val = min(bestVal,self.getMax( succ, 0, depth-1, ghosts, bestAlp, bestBeta))
         else:
           val = min(bestVal,self.getMin( succ, index+1, depth, ghosts, bestAlp, bestBeta))
-        if val< bestVal:
-          bestVal= val
+        if val < bestVal:
+          bestVal = val
+        #per min actualitzem el valor de beta
+        if bestVal < bestBeta:
+          bestBeta = bestVal
+        #si el valor es superior a alpha no cal seguir buscant
+        if bestVal < bestAlp:
+          break
       return bestVal
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
