@@ -153,60 +153,64 @@ class MinimaxAgent(MultiAgentSearchAgent):
         print "ghosts", ghosts
         bestVal = float("-inf")
         bestAct = None
-        print gameState.getLegalActions(self.index)
+        #print gameState.getLegalActions(self.index)
         for action in gameState.getLegalActions(self.index):
           """if action is not "Stop":"""
 
           successor = gameState.generateSuccessor(self.index, action)
-          print "Index ", self.index, action
-          val = max(bestVal, self.getMin( successor, self.index, self.depth, ghosts))
+          #print "Index ", self.index, action
+          val = max(bestVal, self.getMin( successor, self.index+1, self.depth, ghosts))
           if val> bestVal:
             bestVal, bestAct = val, action
+        #print bestAct
         return bestAct
         util.raiseNotDefined()
 
     def getMax(self, successor, index,  depth, ghosts):
       """actions = gameState.getLegalActions(0)"""
-      index, depth = index +1, depth -1
-      print "MAX", index, depth, ghosts
-      
-      try :
+      #index= index +1
+      #depth = depth -1
+      print depth 
+      #print "MAX", index, depth, ghosts
+      actions = successor.getLegalActions(index)
+      """try :
         actions = successor.getLegalActions(index)
       except:
-        actions=[]
-      print "actions", actions
-      if depth== 0 or actions==[] :
+        actions=[]"""
+      #print "actions", actions
+
+      if actions==[] or depth== 0 :
+        #print self.evaluationFunction(successor)
         return self.evaluationFunction(successor)
       bestVal = float("-inf")  
       for action in actions:
         """if action is not "Stop":"""
-        print action
-        successor = successor.generateSuccessor(index, action) 
-        val = max(bestVal,self.getMin(successor, index, depth, ghosts))
+        #print action, index
+        succ = successor.generateSuccessor(index, action) 
+        val = max(bestVal,self.getMin(succ, index+1, depth, ghosts))
         if val> bestVal:
           bestVal= val
       return bestVal
 
     def getMin(self, successor, index,  depth, ghosts):
-      index, depth = index +1, depth -1
-      print "MIN" ,index, depth, ghosts
-      actions=[]
-      try :
+      actions = successor.getLegalActions(index)
+      """print "MIN" ,index, depth, ghosts"""
+      """try :
         actions = successor.getLegalActions(index)
       except:
-        actions = []
-      print "actions", actions
-      if depth== 0 or actions==[]:
+        actions = []"""
+      #print "actions", actions
+      if actions==[] or depth== 0 :
+        """print self.evaluationFunction(successor)"""
         return self.evaluationFunction(successor)
       bestVal = float("inf")  
       for action in actions:
-        """if action is not "Stop":"""
-        print action
-        successor = successor.generateSuccessor(index, action)
+        """print action"""
+        succ = successor.generateSuccessor(index, action)
         if index==ghosts:
-          val = min(bestVal,self.getMax( successor, 0, depth, ghosts))
+          val = min(bestVal,self.getMax( succ, 0, depth-1, ghosts))
         else:
-          val = min(bestVal,self.getMin( successor, index, depth, ghosts))
+          val = min(bestVal,self.getMin( succ, index+1, depth, ghosts))
         if val< bestVal:
           bestVal= val
       return bestVal  
