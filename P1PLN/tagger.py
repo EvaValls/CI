@@ -1,5 +1,5 @@
 import sys
-
+import operator
 
 class TrainingModel():
 
@@ -9,26 +9,67 @@ class TrainingModel():
 	def getTrainingSet(self, fileName):
 		#1. llegir corpus [paraula, tipus]
 		#2. comptar quin tipus aparaiex mes cops
-
+		tags = {}
 		file = open(fileName)
-		file2 = open("prova.txt", "w")
 		lines = file.read().split("\r\n")
-		#lines = lines.decode("latin_1").encode("UTF-8")
 		for line in lines:
+			#End of File
 			if line == '':
 				break
+
 			line = line.decode("latin_1").encode("UTF-8")
 			aux = line.split()
-			self.trainingSet[aux[0]] = aux[1]
-			
-		print self.trainingSet
-		file.close()
-		file2.close()
 
-	def generateModel(self):
-		#2. guardar [paraula, tipus, num]
-		#3. generar model (lexic.txt) (1A LINEA TIPUS MES FREQ) if(paraula ja existeix) then comparar num ...
-		return 0
+			#actualitzar vegades que apareix paraula-tag
+			if self.trainingSet.has_key((aux[0],aux[1])) :
+				self.trainingSet[(aux[0],aux[1])] = self.trainingSet[(aux[0],aux[1])]+1
+			else:
+				self.trainingSet[(aux[0],aux[1])] = 1
+
+			#actualitzar vegades que apareix un tag
+			if tags.has_key(aux[1]) :
+				tags[aux[1]] = tags[aux[1]] + 1
+			else:
+				tags[aux[1]] = 1
+
+		print tags
+
+		file.close()
+		self.generateModel(tags)
+		
+
+	def generateModel(self, tags):
+
+		
+		mostFreq = max(tags.iteritems(), key=operator.itemgetter(1))[0]
+		file = open("lexic.txt", "w")
+		file.write(mostFreq)
+
+		words, tags, values = [], [], []
+
+		"""dic = self.trainingSet.items()
+		for tupla,value in dic:
+			word, tag = tupla
+			if word not in words:
+				words.append(word)
+				tags.append(tag)
+				values.append(value)
+			else:
+				index = words.index(word)
+				if values[index] < value :
+					tags[index] = tag
+					values[index] = value
+
+		for i in range(len(words)):
+			file.write(words[i]+"\t"+tags[i]+"\t"+values[i])"""
+
+		"""for tupla, value in dic:
+			word, tag = tupla
+			if any(k[0] == word for k in dic):"""
+
+
+
+		file.close()
 
 
 class Prediction():
