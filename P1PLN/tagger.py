@@ -1,46 +1,35 @@
 import sys
 
-class Main(argv):
-	#python tagger.py corpus.txt test.txt results.txt accuracy.txt
-	model = TrainingModel()
-	prediction = Prediction()
-	accuracy = Accuracy()
-	narg = len(sys.argv)
-	corpus, test, result, solutions = ""
-
-	if(narg != 5):
-		#default
-		corpus = "corpus.txt"
-		test = "test_1.txt"
-		result = "results.txt"
-		solutions = "gold_standard_1.txt"
-	else:
-		corpus = sys.arv[1]
-		test = sys.arv[2]
-		result = sys.arv[3]
-		solutions = sys.arv[4]
-
-	
-
 
 class TrainingModel():
 
 	def __init__ (self):
-		self.trainingSet = []
+		self.trainingSet = {}
 
 	def getTrainingSet(self, fileName):
 		#1. llegir corpus [paraula, tipus]
 		#2. comptar quin tipus aparaiex mes cops
+
 		file = open(fileName)
-		lines = file.split("\n\r")
+		file2 = open("prova.txt", "w")
+		lines = file.read().split("\r\n")
+		#lines = lines.decode("latin_1").encode("UTF-8")
 		for line in lines:
-			aux = line.split("\t")
-			self.trainingSet.append(aux)
+			if line == '':
+				break
+			line = line.decode("latin_1").encode("UTF-8")
+			aux = line.split()
+			self.trainingSet[aux[0]] = aux[1]
+			
 		print self.trainingSet
+		file.close()
+		file2.close()
 
 	def generateModel(self):
 		#2. guardar [paraula, tipus, num]
 		#3. generar model (lexic.txt) (1A LINEA TIPUS MES FREQ) if(paraula ja existeix) then comparar num ...
+		return 0
+
 
 class Prediction():
 
@@ -51,11 +40,11 @@ class Prediction():
 	def getTestModel(self, fileName):
 		#1. llegir lexic.txt 
 		#2. guardar en model [paraula, tipus, num]
-
+		return 0
 	def getTestSet(self, fileName):
 		#1. llegir txt
 		#2. guardar llista paraules
-
+		return 0
 	def tagging(self, fileName):
 		#1. per cada paraula en testSet
 		#1.1 si apareix a model
@@ -64,7 +53,7 @@ class Prediction():
 		#1.2.a distancia
 		#1.2.b mes frequent
 		#2. escriure fitxer results.txt [paraula tipus]
-
+		return 0
 class Accuracy():
 
 	def __init__ (self):
@@ -73,11 +62,36 @@ class Accuracy():
 
 	def getSolutions(self, fileName):
 		#1. llegir fitxer amb solucions i guardar [paraula, tipus]
-
+		return 0
 	def getPredictions(self, fileName):
 		#1. llegir fitxer amb prediccions i guardar [paraula, tipus]
-
+		return 0
 	def computeAccuracy(self):
 		#comparar solutions i predictions
 		#prediccions correctes / num total
 		#retornar accuracy
+		return 0
+
+
+class Main():
+	#python tagger.py corpus.txt test.txt results.txt accuracy.txt
+	model = TrainingModel()
+	prediction = Prediction()
+	accuracy = Accuracy()
+	narg = len(sys.argv)
+	corpus, test, result, solutions = "", "", "", ""
+
+	if(narg != 5):
+		#default
+		corpus = "corpus.txt"
+		test = "test_1.txt"
+		result = "results.txt"
+		solutions = "gold_standard_1.txt"
+	else:
+		corpus = sys.argv[1]
+		test = sys.argv[2]
+		result = sys.argv[3]
+		solutions = sys.argv[4]
+
+	model = TrainingModel()
+	model.getTrainingSet(corpus)
