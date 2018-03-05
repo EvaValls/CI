@@ -10,8 +10,10 @@ class TrainingModel():
 		#1. llegir corpus [paraula, tipus]
 		#2. comptar quin tipus aparaiex mes cops
 		tags = {}
+		mostFreq = {}
 		file = open(fileName)
 		lines = file.read().split("\r\n")
+		file.close()
 		for line in lines:
 			#End of File
 			if line == '':
@@ -20,11 +22,19 @@ class TrainingModel():
 			line = line.decode("latin_1").encode("UTF-8")
 			aux = line.split()
 
+			word = (aux[0], aux[1])
+
+			if not mostFreq.has_key(aux[0]):
+				mostFreq[aux[0]] = (aux[1], 1)
+
 			#actualitzar vegades que apareix paraula-tag
-			if self.trainingSet.has_key((aux[0],aux[1])) :
-				self.trainingSet[(aux[0],aux[1])] = self.trainingSet[(aux[0],aux[1])]+1
+			if self.trainingSet.has_key(word) :
+				value = self.trainingSet[word] + 1
+				self.trainingSet[word] = value
+				if value > mostFreq[aux[0]][1]:
+					mostFreq[aux[0]] = (aux[1], value)
 			else:
-				self.trainingSet[(aux[0],aux[1])] = 1
+				self.trainingSet[word] = 1
 
 			#actualitzar vegades que apareix un tag
 			if tags.has_key(aux[1]) :
@@ -32,18 +42,19 @@ class TrainingModel():
 			else:
 				tags[aux[1]] = 1
 
-		print tags
-
-		file.close()
-		self.generateModel(tags)
-		
-
-	def generateModel(self, tags):
+		print mostFreq
+		#print tags
 
 		
-		mostFreq = max(tags.iteritems(), key=operator.itemgetter(1))[0]
+		self.generateModel(tags, mostFreq)
+		
+
+	def generateModel(self, tags, words):
+
+		
+		mostFreqTag = max(tags.iteritems(), key=operator.itemgetter(1))[0]
 		file = open("lexic.txt", "w")
-		file.write(mostFreq)
+		file.write(mostFreqTag)
 
 		words, tags, values = [], [], []
 
