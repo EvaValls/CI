@@ -21,37 +21,19 @@ class TrainingModel():
 
 			line = line.decode("latin_1").encode("UTF-8")
 			word, tag = line.split()
-			#print word, tag
-			#word = (aux[0], aux[1])
 
-			"""if not mostFreq.has_key(aux[0]):
-				mostFreq[aux[0]] = (aux[1], 1)
-
-			#actualitzar vegades que apareix paraula-tag
-			if self.trainingSet.has_key(word) :
-				value = self.trainingSet[word] + 1
-				self.trainingSet[word] = value
-				if value > mostFreq[aux[0]][1]:
-					mostFreq[aux[0]] = (aux[1], value)
-			else:
-				self.trainingSet[word] = 1
-
-			#actualitzar vegades que apareix un tag
-			if tags.has_key(aux[1]) :
-				tags[aux[1]] = tags[aux[1]] + 1
-			else:
-				tags[aux[1]] = 1"""
-
+			#afegim paraula amb valor 1 si el diccionari no la conte
 			if not self.trainingSet.has_key(word):
 				self.trainingSet[word] = (tag, 1)
 
+			#comprovem si existeix la combinacio paraula-tag i actualitzem valors
 			if fullSet.has_key((word,tag)) :
 				value = fullSet[(word, tag)] + 1
 				fullSet[(word, tag)] = value
 				if value > self.trainingSet[word][1]:
 					self.trainingSet[word] = (tag, value)
-				else:
-					fullSet[(word, tag)] = 1
+			else:
+				fullSet[(word, tag)] = 1
 
 			if tags.has_key(tag) :
 				tags[tag] = tags[tag] + 1
@@ -64,17 +46,16 @@ class TrainingModel():
 	def generateModel(self, tags):
 
 		
-		# mostFreqTag = max(tags.iteritems(), key=operator.itemgetter(1))[0]
-		# file = open("lexic.txt", "w")
-		# file.write(mostFreqTag)
+		mostFreqTag = max(tags.iteritems(), key=operator.itemgetter(1))[0]
+		file = open("lexic.txt", "w")
+		file.write(mostFreqTag)
 
-		# #CANVIAR EL QUE GUARDEM A WORDS I TRAININGSET
-		# dic = self.trainingSet.items()
-		# for word, tagValue in dic:
-		# 	tag, value = tagValue
-		# 	file.write(word+"\t"+tag+"\t"+str(value))
+		dic = self.trainingSet.items()
+		for word, tagValue in dic:
+			tag, value = tagValue
+			file.write( "\n" + word + "\t" + tag + "\t" + str(value) )
 
-		# file.close()
+		file.close()
 		return 0
 
 class Prediction():
