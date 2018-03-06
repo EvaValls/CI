@@ -10,7 +10,7 @@ class TrainingModel():
 		#1. llegir corpus [paraula, tipus]
 		#2. comptar quin tipus aparaiex mes cops
 		tags = {}
-		mostFreq = {}
+		fullSet = {}
 		file = open(fileName)
 		lines = file.read().split("\r\n")
 		file.close()
@@ -20,11 +20,11 @@ class TrainingModel():
 				break
 
 			line = line.decode("latin_1").encode("UTF-8")
-			aux = line.split()
+			word, tag = line.split()
+			#print word, tag
+			#word = (aux[0], aux[1])
 
-			word = (aux[0], aux[1])
-
-			if not mostFreq.has_key(aux[0]):
+			"""if not mostFreq.has_key(aux[0]):
 				mostFreq[aux[0]] = (aux[1], 1)
 
 			#actualitzar vegades que apareix paraula-tag
@@ -40,48 +40,42 @@ class TrainingModel():
 			if tags.has_key(aux[1]) :
 				tags[aux[1]] = tags[aux[1]] + 1
 			else:
-				tags[aux[1]] = 1
+				tags[aux[1]] = 1"""
 
-		print mostFreq
-		#print tags
+			if not self.trainingSet.has_key(word):
+				self.trainingSet[word] = (tag, 1)
 
-		
-		self.generateModel(tags, mostFreq)
-		
+			if fullSet.has_key((word,tag)) :
+				value = fullSet[(word, tag)] + 1
+				fullSet[(word, tag)] = value
+				if value > self.trainingSet[word][1]:
+					self.trainingSet[word] = (tag, value)
+				else:
+					fullSet[(word, tag)] = 1
 
-	def generateModel(self, tags, words):
-
-		
-		mostFreqTag = max(tags.iteritems(), key=operator.itemgetter(1))[0]
-		file = open("lexic.txt", "w")
-		file.write(mostFreqTag)
-
-		words, tags, values = [], [], []
-
-		"""dic = self.trainingSet.items()
-		for tupla,value in dic:
-			word, tag = tupla
-			if word not in words:
-				words.append(word)
-				tags.append(tag)
-				values.append(value)
+			if tags.has_key(tag) :
+				tags[tag] = tags[tag] + 1
 			else:
-				index = words.index(word)
-				if values[index] < value :
-					tags[index] = tag
-					values[index] = value
+				tags[tag] = 1
+		
+		self.generateModel(tags)
+		
 
-		for i in range(len(words)):
-			file.write(words[i]+"\t"+tags[i]+"\t"+values[i])"""
+	def generateModel(self, tags):
 
-		"""for tupla, value in dic:
-			word, tag = tupla
-			if any(k[0] == word for k in dic):"""
+		
+		# mostFreqTag = max(tags.iteritems(), key=operator.itemgetter(1))[0]
+		# file = open("lexic.txt", "w")
+		# file.write(mostFreqTag)
 
+		# #CANVIAR EL QUE GUARDEM A WORDS I TRAININGSET
+		# dic = self.trainingSet.items()
+		# for word, tagValue in dic:
+		# 	tag, value = tagValue
+		# 	file.write(word+"\t"+tag+"\t"+str(value))
 
-
-		file.close()
-
+		# file.close()
+		return 0
 
 class Prediction():
 
