@@ -2,22 +2,31 @@ import sys
 import operator
 import os
 
+class utils():
+
+	def getInputFile(self, fileName):
+
+		fullSet = {}
+		file = open(fileName)
+		lines = file.read().split("\r\n")
+		file.close()
+
+		return lines
+
+
 class TrainingModel():
 
 	def __init__ (self):
 		self.trainingSet = {}
 
 	def getTrainingSet(self, fileName):
-		#1. llegir corpus [paraula, tipus]
-		#2. comptar quin tipus aparaiex mes cops
+
 		print "... Obtaining training set ..."
 
 		tags = {}
 		fullSet = {}
-		file = open(fileName)
-		lines = file.read().split("\r\n")
-		file.close()
-		for line in lines:
+
+		for line in utils().getInputFile(fileName):
 			#End of File
 			if line == '':
 				break
@@ -38,6 +47,7 @@ class TrainingModel():
 			else:
 				fullSet[(word, tag)] = 1
 
+			#comptar vegades que apareix tag
 			if tags.has_key(tag) :
 				tags[tag] = tags[tag] + 1
 			else:
@@ -60,7 +70,7 @@ class TrainingModel():
 			file.write( "\n" + word + "\t" + tag + "\t" + str(value) )
 
 		file.close()
-		return (self.trainingSet, mostFreqTag)
+		return (mostFreqTag, self.trainingSet)
 
 class Prediction():
 
@@ -69,57 +79,40 @@ class Prediction():
 		self.model = {}
 		self.mostFreqTag = 0
 
-	def getTestModel(self, fileName, model):
-		#1. llegir lexic.txt 
-		#2. guardar en model [paraula, tipus, num]
-		if model == 0:
-			print "... Getting trained model ..."
-			#file = open(fileName)
-			#...
-
-		self.model = model[0]
-		self.mostFreqTag = model[1]
+	def getTestModel(self, model):
+		self.mostFreqTag = model[0]
+		self.model = model[1]
 		
 	def getTestSet(self, fileName):
-		#1. llegir txt
-		#2. guardar llista paraules
+
 		print "... Getting test set ..."
 
-		file = open(fileName)
-		lines = file.read().split("\r\n")
-		file.close()
-		for word in lines:
+		for word in utils().getInputFile(fileName):
 			#End of File
 			if word == '':
 				break
 			self.testSet.append(word.decode("latin_1").encode("UTF-8"))
 
 		
-	def tagging(self, fileName, op):
-		#1. per cada paraula en testSet
-		#1.1 si apareix a model
-		#1.1.1 assignar tag
-		#1.2 si no
-		#1.2.a distancia
-		#1.2.b mes frequent
-		#2. escriure fitxer results.txt [paraula tipus]
+	def tagging(self, fileName):
+
 		print "... Tagging test set ..."
-		predictions = []
+
+		#predictions = []
+
 		file = open(fileName, "w")
 		for word in self.testSet:
 			if not self.model.has_key(word) :
-				if op == 0 :
-					#Opcio 0 --> assignar tag mes frequent
-					file.write( word + "\t" + self.mostFreqTag + "\r\n" )
-					predictions.append((word, self.mostFreqTag))
-				#elif op == 1:
-					#Opcio 1 --> assignar tag de paraula a menys distancia
+				#assignar tag mes frequent en el corpus
+				file.write( word + "\t" + self.mostFreqTag + "\r\n" )
+				#predictions.append((word, self.mostFreqTag))
 			else:
+				#assignar tag mes frequent de la paraula
 				file.write( word + "\t" + self.model[word][0] + "\r\n" )
-				predictions.append((word,self.model[word][0]))
+				#predictions.append((word,self.model[word][0]))
 
 		file.close()
-		return predictions
+
 
 class Accuracy():
 
@@ -127,15 +120,11 @@ class Accuracy():
 		self.solutions = []
 		self.predictions = []
 
-	def computeAccuracy(self, solutions, predsFile, predictions):
-		#comparar solutions i predictions
-		#prediccions correctes / num total
-		#retornar accuracy
+	def computeAccuracy(self, solutions, predsFile):
 		print "... Computing accuracy ..."
-		print "\t... Getting gold standard test ..."
-		self.getInputFile(solutions, "gs")
-		print "\t... Getting predictions ..."
-		self.getInputFile(predsFile, "p")
+
+		self.solutions = utils().getInputFile(solutions)
+		self.predictions = utils().getInputFile(predsFile)
 
 		total = 0
 		correct = 0.0
@@ -147,52 +136,15 @@ class Accuracy():
 
 		return correct / total
 
-		# if predictions == 0:
-		# 	print "\t... Getting predictions ..."
-		# 	getInputFile(predsFile, "p")
-		# else:
-		# 	self.predictions = predictions
-
-		# for word, tag in ...
-
-	def getInputFile(self, fileName, fileType):
-		#1. llegir fitxer amb solucions i guardar [paraula, tipus]
-		wordsList = []
-		file = open(fileName)
-		wordsList = file.read().split("\r\n")
-		file.close()
-
-		if fileType == "gs" :
-			#gold standard
-			self.solutions = wordsList
-		elif fileType == "p":
-			#predictions
-			self.predictions = wordsList
-		else:
-			print "ERROR"
-
 
 class Main():
-	#python tagger.py -t t1 -r results.txt -q 0
+
+	#python tagger.py -t t1 -r results.txt 
 	model = TrainingModel()
 	prediction = Prediction()
 	accuracy = Accuracy()
-	# narg = len(sys.argv)
-	# corpus, test, result, solutions = "", "", "", ""
 
-	# if(narg != 5):
-	# 	#default
-	# 	corpus = "corpus.txt"
-	# 	test = "test_1.txt"
-	# 	result = "results.txt"
-	# 	solutions = "gold_standard_1.txt"
-	# else:
-	# 	corpus = sys.argv[1]
-	# 	test = sys.argv[2]
-	# 	result = sys.argv[3]
-	# 	solutions = sys.argv[4]
-
-	test, solutions, result, op = "test_1.txt", "gold_standard_1.txt", "result.txt", 0
+	test, solutions, result = "test_1.txt", "gold_standard_1.txt", "results.txt"
 	i = 0
 	for arg in sys.argv :
 		if arg == "-t" :
@@ -204,14 +156,12 @@ class Main():
 				solutions = "gold_standard_2.txt"
 		if arg == "-r" :
 			results = sys.argv[i+1]
-		if arg == "-q":
-			op = sys.argv[i+1]
+		
 		i += 1
 
-
-	genModel = model.getTrainingSet("corpus.txt")
-	prediction.getTestModel("lexic.txt", genModel)
+	genModel = model.getTrainingSet("corpus.txt")		#generate model
+	prediction.getTestModel(genModel)					
 	prediction.getTestSet(test)
-	pred = prediction.tagging(result, op)
-	acc = accuracy.computeAccuracy(solutions, result, 0)
+	prediction.tagging(result)							#tag test set
+	acc = accuracy.computeAccuracy(solutions, result)	#compute accuracy with gold standard
 	print "ACCURACY: ", acc
