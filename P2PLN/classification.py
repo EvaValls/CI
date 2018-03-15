@@ -2,6 +2,7 @@ import sys
 import operator
 import os
 from string import punctuation
+import re, itertools
 
 class utils():
 
@@ -18,13 +19,14 @@ class Classification():
 		self.features = {}
 
 	def computeFeatures(self, dir, N,type):
-
 		for filename in os.listdir(dir):
 			self.featureExtraction(dir+'/'+filename, type)
 		l = self.features.items()
 
-		l.sort(key, reverse=True) #mirar el sort (no functiona)
-		return l
+	
+		lsorted = sorted(self.features, key=self.features.get, reverse=True)
+		topN = lsorted[:N]
+		return topN
 
 	def featureExtraction(self, filename, type):
 		
@@ -32,9 +34,12 @@ class Classification():
 			#End of File
 			if elem == '':
 				break
-			"""for s in punctuation: 
-  				elem =elem.replace(s,'')"""
-			print elem
+			forbidden = ("?" , "!",'"', ",", ".", ";", ":")
+			for s in  forbidden:
+				if s =="." and re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", elem) != None:
+					break;
+
+  				elem =elem.replace(s,'')
 
 			#if elem is not in forbidden:	
 			elem = elem.lower()
@@ -45,20 +50,25 @@ class Classification():
 			#actualitzem valors
 			else:
 				self.features[elem]+= 1
-				
-		
-		#return self.computeFeatures(N)
 
 
-	#def transformtToArffFormat():
+
+	def toArffFormat(features):
+		data = "% 1. Title: Classification\n" +
+	    "% 2. Sources:\n"+
+	    "% (a) Creator: Núria Rodríguez, Eva Valls\n\n"+
+	    "@RELATION genre\n"
+	    for elem in features	
+	    	data += "@ATTRIBUTE "+elem +" STRING\n"
+	   	
+	    data+= "@ATTRIBUTE class        {female,male}"
 
 class Main():
 
 	#python tagger.py -t t1 -r results.txt 
 	classification = Classification()
 	features = classification.computeFeatures( "dataset" , 5, "words" )
-	print features
-
+	classification.toArffFormat(features)
 	"""test, solutions, result = "filename", "gold_standard_1.txt", "results.txt"
 	i = 0
 	for arg in sys.argv :
