@@ -14,13 +14,14 @@ class utils():
 
 		return lines	
 	def parser(self, elem):
-		forbidden = ("?" , "!",'"', ",", ".", ";", ":")
+		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-")
 		for s in  forbidden:
 			if s =="." and re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", elem) != None:
 				break;
 
 			elem =elem.replace(s,'')
-
+		if elem ==" ":
+			elem =elem.replace(" ",'')
 			#if elem is not in forbidden:	
 		elem = elem.lower()
 		return elem
@@ -54,7 +55,8 @@ class Extraction():
 			elem = utils().parser(elem)
 			#afegim paraula amb valor 1 si el diccionari no la conte
 			if not self.features.has_key(elem):
-				self.features[elem] = 1
+				if elem !="":
+					self.features[elem] = 1
 
 			#actualitzem valors
 			else:
@@ -106,7 +108,7 @@ class Main():
 
 	#python tagger.py -t t1 -r results.txt 
 	extraction = Extraction()
-	features = extraction.computeFeatures( "dataset" , 5, "words" )
+	features = extraction.computeFeatures( "dataset" , 30, "words" )
 
 	classifier = Classifier(features)
 	classifier.featureClassifier("dataset")
