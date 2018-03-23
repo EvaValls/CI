@@ -9,24 +9,28 @@ class utils():
 	def getInputFile(self, fileName):
 
 		file = open(fileName)
-		lines = file.read().split()
+		elements = file.read().split()
 		file.close()
+		return elements
 
-		return lines	
 	def parserWord(self, elem):
-		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-", "'")
+		#Busquem les paraules com a features
+
+		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-", "'", "\xe2")
 		for s in  forbidden:
+			#Ignorar puntuacio d'un mail
 			if s =="." and re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", elem) != None:
 				break;
-
-			elem =elem.replace(s,'')
+			if s in elem:
+				elem =elem.replace(s,'')		#Eliminar signes de puntuacio
 		if elem ==" ":
 			elem =elem.replace(" ",'')
-			#if elem is not in forbidden:	
-		elem = elem.lower()
+		elem = elem.lower()						#Posar tot en miniscula
 		return elem
 
 	def parserPunctuation(self, elem):
+		#Busquem els signes de puntuacio com a features
+
 		punctuation = ("?" , "!",'"', ",", ".", ";", ":", "-")
 		
 		for s in  punctuation:
@@ -55,7 +59,7 @@ class Extraction():
 			self.featureExtraction(dir+'/'+filename, type)
 		l = self.features.items()
 
-	
+		#Ordenem vector de features i retornem N primers
 		lsorted = sorted(self.features, key=self.features.get, reverse=True)
 		topN = lsorted[:N]
 		return topN
@@ -70,14 +74,13 @@ class Extraction():
 				elem = utils().parserWord(elem)
 			elif type == "punct":
 				elem = utils().parserPunctuation(elem)
-			#afegim paraula amb valor 1 si el diccionari no la conte
+			
 			if elem!="":
 				if not self.features.has_key(elem):
-					if elem !="":
-						self.features[elem] = 1
-
-				#actualitzem valors
+					#Afegim paraula amb valor 1 si el diccionari no la conte
+					self.features[elem] = 1
 				else:
+					#Actualitzem valors
 					self.features[elem]+= 1
 
 class Classifier():
@@ -86,34 +89,43 @@ class Classifier():
 		self.data = ""
 
 	def toArffFormat(self, type):
+		#Escriure capcalera
 		data = "% 1. Title: Classification\n% 2. Sources:\n% (a) Creator: Nuria Rodriguez, Eva Valls\n\n@RELATION genre\n"
-		for elem in self.features:	
+		for elem in self.features:
+			#Escriure cadascun dels features	
 			if type== "punct":
 				elem = "'"+elem+"'"
 			data += "@ATTRIBUTE "+elem +" NUMERIC\n"
 	   	
 		data+= "@ATTRIBUTE class {female,male}\n@DATA\n"
 		self.data = data
+
 	def featureClassifier(self, dir, type):
+
 		dictionary = {}
-		
 		self.toArffFormat(type)
 		for f in self.features:
-				dictionary[f] = 0
+			#Inicialitzem diccionari
+			dictionary[f] = 0
 
 		for filename in os.listdir(dir):
 			count = 0.0
 			for elem in utils().getInputFile(dir+'/'+filename):
 				if elem == '':
 					break
+				#Transformar elements al tipus de features
 				if type == "word":
 					elem = utils().parserWord(elem)
 				elif type == "punct":
 					elem = utils().parserPunctuation(elem)
+				
+				#Actualitzar vegades que apareix feature
 				if elem!="":
 					if dictionary.has_key(elem):
 						dictionary[elem]+=1
 					count += 1
+
+			#Afegir una nova linia de data
 			currentData = ""
 			for f in self.features:
 				if dictionary[f] == 0:
