@@ -15,8 +15,7 @@ class utils():
 
 	def parserWord(self, elem):
 		#Busquem les paraules com a features
-
-		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-", "'", "\xe2")
+		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-")
 		for s in  forbidden:
 			#Ignorar puntuacio d'un mail
 			if s =="." and re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", elem) != None:
@@ -30,7 +29,6 @@ class utils():
 
 	def parserPunctuation(self, elem):
 		#Busquem els signes de puntuacio com a features
-
 		punctuation = ("?" , "!",'"', ",", ".", ";", ":", "-")
 		
 		for s in  punctuation:
@@ -70,7 +68,7 @@ class Extraction():
 			#End of File
 			if elem == '':
 				break
-			if type=="word":
+			if type=="words":
 				elem = utils().parserWord(elem)
 			elif type == "punct":
 				elem = utils().parserPunctuation(elem)
@@ -146,7 +144,7 @@ class Main():
 
 	#python classification.py -n 100 -t word 
 
-	N, type = 100, "word"
+	N, type = 100, "words"
 	i = 0
 	for arg in sys.argv:
 		if arg=="-n" :
