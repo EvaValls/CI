@@ -15,13 +15,13 @@ class utils():
 
 	def parserWord(self, elem):
 		#Busquem les paraules com a features
-		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-")
+		forbidden = ("?" , "!",'"', ",", ".", ";", ":", "-", "'")
 		for s in  forbidden:
 			#Ignorar puntuacio d'un mail
 			if s =="." and re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", elem) != None:
 				break;
-			if s in elem:
-				elem =elem.replace(s,'')		#Eliminar signes de puntuacio
+			#if s in elem:
+			elem =elem.replace(s,'')		#Eliminar signes de puntuacio
 		if elem ==" ":
 			elem =elem.replace(" ",'')
 		elem = elem.lower()						#Posar tot en miniscula
@@ -29,7 +29,7 @@ class utils():
 
 	def parserPunctuation(self, elem):
 		#Busquem els signes de puntuacio com a features
-		punctuation = ("?" , "!",'"', ",", ".", ";", ":", "-")
+		punctuation = ("?" , "!",'"', ",", ".", ";", ":", "-", ".", "\xe2")
 		
 		for s in  punctuation:
 			if s in elem:
@@ -112,7 +112,7 @@ class Classifier():
 				if elem == '':
 					break
 				#Transformar elements al tipus de features
-				if type == "word":
+				if type == "words":
 					elem = utils().parserWord(elem)
 				elif type == "punct":
 					elem = utils().parserPunctuation(elem)
